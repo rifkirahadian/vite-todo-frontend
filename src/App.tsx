@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import Home from './pages/Home'
 import PrivateRoute from './middlewares/auth'
 import Layout from './components/Layout'
+import Register from './pages/Register'
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         </PrivateRoute>
       } />
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
     </Routes>
   )
 }

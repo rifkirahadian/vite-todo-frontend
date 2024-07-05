@@ -14,6 +14,20 @@ const login = async (data: { email: string, password: string }) => {
   return { data: response, isError, error };
 }
 
+const register = async (data: { email: string, password: string, name: string }) => {
+  const {
+    data: response,
+    isError,
+    error,
+  } = await axiosRequest({
+    url: `/user/register`,
+    method: 'POST',
+    data,
+  });
+
+  return { data: response, isError, error };
+}
+
 const authUser = async () => {
   const {
     data: response,
@@ -28,4 +42,4 @@ const authUser = async () => {
   return { data: response, isError, error };
 }
 
-export { login, authUser }
+export { login, authUser, register }
