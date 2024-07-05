@@ -1,10 +1,10 @@
 import './App.css'
 import { Route, Routes } from 'react-router-dom'
 import Login from './pages/Login'
-import Home from './pages/Home'
 import PrivateRoute from './middlewares/auth'
 import Layout from './components/Layout'
 import Register from './pages/Register'
+import TodoList from './pages/TodoList'
 
 function App() {
   return (
@@ -12,7 +12,7 @@ function App() {
       <Route path="/" element={
         <PrivateRoute>
           <Layout>
-            <Home />
+            <TodoList />
           </Layout>
         </PrivateRoute>
       } />
