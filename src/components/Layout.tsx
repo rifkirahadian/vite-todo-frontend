@@ -27,7 +27,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <>
       <Navbar bg="dark" data-bs-theme="dark" fixed="top">
         <Container>
-          <Navbar.Brand href="/">My App</Navbar.Brand>
+          <Navbar.Brand href="/">Task Management Application</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">

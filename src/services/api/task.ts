@@ -1,17 +1,25 @@
+import { Task } from "../../types/Task";
 import axiosRequest from "./axiosRequest";
 
 const getTasks = async () => {
-  const {
-    data: response,
-    isError,
-    error,
-  } = await axiosRequest({
+  const { data, isError, error } = await axiosRequest({
     url: `/task`,
     method: 'GET',
     isAuth: true,
   });
 
-  return { data: response, isError, error };
+  return { data, isError, error };
 }
 
-export { getTasks }
+const addTask = async (payload: Task) => {
+  const { data, isError, error } = await axiosRequest({
+    url: `/task`,
+    method: 'POST',
+    isAuth: true,
+    data: payload,
+  });
+
+  return { data, isError, error };
+}
+
+export { getTasks, addTask }

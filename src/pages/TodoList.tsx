@@ -1,22 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
 import { Task } from '../types/Task';
-import { Container, Row, Col, Card, Button, Form, Dropdown } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Dropdown } from 'react-bootstrap';
 import { getTasks } from '../services/api';
+import AddModal from '../components/AddModal';
 
 const TodoList: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [newTodoTitle, setNewTodoTitle] = useState('');
-
-  const addTodo = () => {
-    const newTodo: Task = {
-      id: Date.now(),
-      title: newTodoTitle,
-      status: 'todo'
-    };
-    setTasks([...tasks, newTodo]);
-    setNewTodoTitle('');
-  };
+  const [showAddModal, setShowAddModal] = useState(false);
 
   // const updateTaskStatus = (id: number, status: 'todo' | 'inprogress' | 'done') => {
   //   setTasks(tasks.map(todo => todo.id === id ? { ...todo, status } : todo));
@@ -39,8 +30,6 @@ const TodoList: React.FC = () => {
   useEffect(() => {
     loadTasks();
   }, []);
-
-  console.log({ tasks });
   
 
   const renderTask = (task: Task) => (
@@ -75,37 +64,30 @@ const TodoList: React.FC = () => {
 
   return (
     <Container>
-      <Row className="my-4">
-        <Col>
-          <h2 className="text-center">Todo List</h2>
-          <Form onSubmit={e => { e.preventDefault(); addTodo(); }}>
-            <Form.Group controlId="formNewTodo">
-              <Form.Control
-                type="text"
-                placeholder="Enter new todo"
-                value={newTodoTitle}
-                onChange={(e) => setNewTodoTitle(e.target.value)}
-              />
-            </Form.Group>
-            <Button variant="primary" type="submit" className="w-100 mt-2">Add Todo</Button>
-          </Form>
+      <Row className="my-4 pt-3">
+        <Col lg="6" className='text-start'>
+          <h2>Task List</h2>
+        </Col>
+        <Col lg="6" className='text-end'>
+          <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Task</Button>
         </Col>
       </Row>
       <Row>
         <Col md="4">
           <h3>To Do</h3>
-          {tasks.filter(todo => todo.status === 'todo').map(renderTask)}
+          {tasks.filter(task => task.status === 'todo').map(renderTask)}
         </Col>
         <Col md="4">
           <h3>In Progress</h3>
-          {tasks.filter(todo => todo.status === 'inprogress').map(renderTask)}
+          {tasks.filter(task => task.status === 'inprogress').map(renderTask)}
         </Col>
         <Col md="4">
           <h3>Done</h3>
-          {tasks.filter(todo => todo.status === 'done').map(renderTask)}
+          {tasks.filter(task => task.status === 'done').map(renderTask)}
         </Col>
       </Row>
-    </Container>
+      <AddModal show={showAddModal} handleClose={() => setShowAddModal(false)} handleAddTask={loadTasks} />
+  </Container>
   );
 };
 
