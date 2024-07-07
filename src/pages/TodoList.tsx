@@ -7,7 +7,11 @@ import AddModal from '../components/AddModal';
 
 const TodoList: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [addModal, setAddModal] = useState({
+    show: false,
+    type: 'Add',
+    id: 0,
+  });
 
   // const updateTaskStatus = (id: number, status: 'todo' | 'inprogress' | 'done') => {
   //   setTasks(tasks.map(todo => todo.id === id ? { ...todo, status } : todo));
@@ -42,9 +46,13 @@ const TodoList: React.FC = () => {
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
-            <Dropdown.Item href="#/action-1">Edit</Dropdown.Item>
-            <Dropdown.Item href="#/action-1">Assign</Dropdown.Item>
-            <Dropdown.Item href="#/action-1">Delete</Dropdown.Item>
+            <Dropdown.Item onClick={() => setAddModal({
+              show: true,
+              type: 'Edit',
+              id: task.id,
+            })} >Edit</Dropdown.Item>
+            <Dropdown.Item >Assign</Dropdown.Item>
+            <Dropdown.Item >Delete</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
         {/* {task.status === 'todo' && (
@@ -69,7 +77,11 @@ const TodoList: React.FC = () => {
           <h2>Task List</h2>
         </Col>
         <Col lg="6" className='text-end'>
-          <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Task</Button>
+          <Button variant="primary" onClick={() => setAddModal({
+            show: true,
+            type: 'Add',
+            id: 0,
+          })}>Add Task</Button>
         </Col>
       </Row>
       <Row>
@@ -86,7 +98,16 @@ const TodoList: React.FC = () => {
           {tasks.filter(task => task.status === 'done').map(renderTask)}
         </Col>
       </Row>
-      <AddModal show={showAddModal} handleClose={() => setShowAddModal(false)} handleAddTask={loadTasks} />
+      <AddModal
+        show={addModal.show}
+        id={addModal.id}
+        type={addModal.type}
+        handleClose={() => setAddModal({
+          show: false,
+          type: 'Add',
+          id: 0,
+        })}
+        handleAddTask={loadTasks} />
   </Container>
   );
 };

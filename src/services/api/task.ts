@@ -22,4 +22,25 @@ const addTask = async (payload: Task) => {
   return { data, isError, error };
 }
 
-export { getTasks, addTask }
+const getTask = async (id: number) => {
+  const { data, isError, error } = await axiosRequest({
+    url: `/task/${id}`,
+    method: 'GET',
+    isAuth: true,
+  });
+
+  return { data, isError, error };
+}
+
+const updateTask = async (id: number, payload: Task) => {
+  const { data, isError, error } = await axiosRequest({
+    url: `/task/${id}`,
+    method: 'PATCH',
+    isAuth: true,
+    data: payload,
+  });
+
+  return { data, isError, error };
+}
+
+export { getTasks, addTask, getTask, updateTask }
