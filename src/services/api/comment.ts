@@ -10,4 +10,15 @@ const getComments = async (taskId: number) => {
   return { data, isError, error };
 }
 
-export { getComments }
+const addComment = async (payload: { taskId: number, comment: string }) => {
+  const { data, isError, error } = await axiosRequest({
+    url: `/comment`,
+    method: 'POST',
+    isAuth: true,
+    data: payload,
+  });
+
+  return { data, isError, error };
+}
+
+export { getComments, addComment }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Form, ListGroup } from 'react-bootstrap';
 import { Comment, Task } from '../types';
-import { getComments, getTask } from '../services/api';
+import { addComment, getComments, getTask } from '../services/api';
 
 interface DetailTaskModalProps {
   show: boolean;
@@ -14,22 +14,29 @@ const DetailTaskModal: React.FC<DetailTaskModalProps> = ({ show, handleClose, ta
   const [comments, setComments] = useState<Comment[]>([]);
   const [task, setTask] = useState<Task | null>(null);
 
-  const handleSubmitComment = () => {
-    // handleAddComment(task.id, newComment);
-    setCommentContent('');
+  const loadComments = async() => {
+    const { data } = await getComments(taskId);
+    setComments(data.data);
+  };
+
+  const loadTask = async() => {
+    const { data } = await getTask(taskId);
+    setTask(data);
+  };
+
+  const handleSubmitComment = async () => {
+    if (commentContent !== '') {
+      const { isError } = await addComment({ taskId, comment: commentContent });
+      if (!isError) {
+        loadComments();
+        setCommentContent('');
+      }
+    }
+    
+    
   };
 
   useEffect(() => {
-    const loadComments = async() => {
-      const { data } = await getComments(taskId);
-      setComments(data.data);
-    };
-
-    const loadTask = async() => {
-      const { data } = await getTask(taskId);
-      setTask(data);
-    };
-
     if (show && taskId !== 0) {
       loadComments();
       loadTask();
