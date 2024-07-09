@@ -23,22 +23,10 @@ const TodoList: React.FC = () => {
     id: 0,
   })
 
-  // const updateTaskStatus = (id: number, status: 'todo' | 'inprogress' | 'done') => {
-  //   setTasks(tasks.map(todo => todo.id === id ? { ...todo, status } : todo));
-  // };
-
-  // const removeTask = (id: number) => {
-  //   setTasks(tasks.filter(todo => todo.id !== id));
-  // };
-
   const loadTasks = async () => {
     const task: any = await getTasks()
     
-    setTasks(task.data.data.map((item: any) => ({
-      id: item.id,
-      title: item.title,
-      status: item.status,
-    })));
+    setTasks(task.data.data);
   };
 
   useEffect(() => {
@@ -46,45 +34,40 @@ const TodoList: React.FC = () => {
   }, []);
   
 
-  const renderTask = (task: Task) => (
-    <Card key={task.id} className="mb-2">
-      <Card.Title>{task.title}</Card.Title>
-      <Card.Body>
-        <Dropdown>
-          <Dropdown.Toggle variant="success" id="dropdown-basic">
-            Action
-          </Dropdown.Toggle>
-
-          <Dropdown.Menu>
+  const renderTask = (task: Task) => {
+    return (
+      <Card key={task.id} className="mb-2">
+        <Card.Title>{task.title}</Card.Title>
+        <Card.Body>
+          
+          {task.description && <Card.Text>{task.description}</Card.Text>}
+          {task.userAssignee !== null && ( <Card.Text>Assigned to: {task.userAssignee?.name}</Card.Text> )}
+          
+          <Dropdown className="ms-2">
+            <Dropdown.Toggle variant="success" id="dropdown-basic">
+              Action
+            </Dropdown.Toggle>
+  
+            <Dropdown.Menu>
             <Dropdown.Item onClick={() => setAddModal({
-              show: true,
-              type: 'Edit',
-              id: task.id!,
-            })} >Edit</Dropdown.Item>
-            <Dropdown.Item onClick={() => setAssignModal({
-              show: true,
-              id: task.id!,
-            })}>Assign</Dropdown.Item>
-            <Dropdown.Item onClick={() => setDeleteModal({
-              show: true,
-              id: task.id!,
-            })}>Delete</Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-        {/* {task.status === 'todo' && (
-          <Button variant="success" onClick={() => updateTaskStatus(task.id, 'inprogress')} >In Progress</Button>
-        )}
-      
-        {task.status === 'inprogress' && (
-          <Button variant="warning" onClick={() => updateTaskStatus(task.id, 'done')} className="ms-2">Done</Button>
-        )}
-
-        <Button variant="warning" onClick={() => updateTaskStatus(task.id, 'done')} className="ms-2">Assign</Button>
-        
-        <Button variant="danger" onClick={() => removeTask(task.id)} className="ms-2">Remove</Button> */}
-      </Card.Body>
-    </Card>
-  );
+                show: true,
+                type: 'Edit',
+                id: task.id!,
+              })} >Edit</Dropdown.Item>
+              <Dropdown.Item onClick={() => setAssignModal({
+                show: true,
+                id: task.id!,
+              })}>Assign</Dropdown.Item>
+              <Dropdown.Item onClick={() => setDeleteModal({
+                show: true,
+                id: task.id!,
+              })}>Delete</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </Card.Body>
+      </Card>
+    )
+  };
 
   return (
     <Container>
