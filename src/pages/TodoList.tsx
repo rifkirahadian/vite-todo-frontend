@@ -4,9 +4,14 @@ import { Task } from '../types/Task';
 import { Container, Row, Col, Card, Button, Dropdown } from 'react-bootstrap';
 import { getTasks } from '../services/api';
 import AddModal from '../components/AddModal';
+import AssignModal from '../components/AssignModal';
 
 const TodoList: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [assignModal, setAssignModal] = useState({
+    show: false,
+    id: 0,
+  })
   const [addModal, setAddModal] = useState({
     show: false,
     type: 'Add',
@@ -51,7 +56,10 @@ const TodoList: React.FC = () => {
               type: 'Edit',
               id: task.id,
             })} >Edit</Dropdown.Item>
-            <Dropdown.Item >Assign</Dropdown.Item>
+            <Dropdown.Item onClick={() => setAssignModal({
+              show: true,
+              id: task.id,
+            })}>Assign</Dropdown.Item>
             <Dropdown.Item >Delete</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
@@ -108,6 +116,15 @@ const TodoList: React.FC = () => {
           id: 0,
         })}
         handleAddTask={loadTasks} />
+      
+      <AssignModal
+        show={assignModal.show}
+        id={assignModal.id}
+        handleClose={() => setAssignModal({
+          show: false,
+          id: 0,
+        })}
+        handleAssignTask={loadTasks} />
   </Container>
   );
 };

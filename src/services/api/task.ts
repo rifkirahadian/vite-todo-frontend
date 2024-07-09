@@ -43,4 +43,15 @@ const updateTask = async (id: number, payload: Task) => {
   return { data, isError, error };
 }
 
-export { getTasks, addTask, getTask, updateTask }
+const assignTask = async (payload: { email: string, taskId: number }) => {
+  const { data, isError, error } = await axiosRequest({
+    url: `/task/assign`,
+    method: 'PATCH',
+    isAuth: true,
+    data: payload,
+  });
+
+  return { data, isError, error };
+}
+
+export { getTasks, addTask, getTask, updateTask, assignTask }
