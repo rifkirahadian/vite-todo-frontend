@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import { Task } from '../types/Task';
 import { addTask, getTask, updateTask } from '../services/api';
@@ -16,12 +16,13 @@ const AddModal: React.FC<AddModalProps> = ({ show, handleClose, handleAddTask, i
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [status, setStatus] = useState('todo');
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
     const newTodo: Task = {
+      id: 0,
       title,
       description,
       dueDate: new Date(dueDate).toISOString().split('T')[0],
@@ -49,14 +50,15 @@ const AddModal: React.FC<AddModalProps> = ({ show, handleClose, handleAddTask, i
     setDescription('');
     setDueDate('');
     handleClose();
-  };
+  }, [title, description, dueDate, status, type, id, handleAddTask, handleClose]);
 
   useEffect(() => {
-    const loadTask = async() => {
+    const loadTask = async () => {
       const { data } = await getTask(id);
       setTitle(data.title);
       setDescription(data.description);
       setDueDate(new Date(data.dueDate).toISOString().split('T')[0]);
+      setStatus(data.status);
     };
 
     if (show && type === 'Edit' && id !== 0) {
@@ -67,9 +69,17 @@ const AddModal: React.FC<AddModalProps> = ({ show, handleClose, handleAddTask, i
       setTitle('');
       setDescription('');
       setDueDate('');
-      setStatus('todo')
+      setStatus('todo');
     }
-  },[id, type, show])
+  }, [id, type, show]);
+
+  const memoizedErrorMessage = useMemo(() => {
+    return errorMessage && (
+      <Alert variant={'danger'} className='mb-2'>
+        {errorMessage}
+      </Alert>
+    );
+  }, [errorMessage]);
 
   return (
     <Modal show={show} onHide={handleClose}>
@@ -78,11 +88,7 @@ const AddModal: React.FC<AddModalProps> = ({ show, handleClose, handleAddTask, i
           <Modal.Title>{type} Task</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {errorMessage && (
-            <Alert variant={'danger'} className='mb-2'>
-              {errorMessage}
-            </Alert>
-          )}
+          {memoizedErrorMessage}
           <Form.Group controlId="formTitle">
             <Form.Label>Title</Form.Label>
             <Form.Control
@@ -115,7 +121,7 @@ const AddModal: React.FC<AddModalProps> = ({ show, handleClose, handleAddTask, i
               onChange={(e) => setDueDate(e.target.value)}
             />
           </Form.Group>
-          <Form.Group controlId="formDueDate" className="mt-3">
+          <Form.Group controlId="formStatus" className="mt-3">
             <Form.Label>Status</Form.Label>
             <Form.Select
               aria-label="Select Status"

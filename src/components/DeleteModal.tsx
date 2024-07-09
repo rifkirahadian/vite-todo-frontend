@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import { deleteTask } from '../services/api';
 
@@ -10,9 +10,9 @@ interface DeleteModalProps {
 }
 
 const DeleteModal: React.FC<DeleteModalProps> = ({ show, handleClose, handleDeleteTask, id }) => {
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
     
@@ -24,21 +24,25 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ show, handleClose, handleDele
 
     handleDeleteTask();
     handleClose();
-  };
+  }, [id, handleDeleteTask, handleClose]);
+
+  const memoizedErrorMessage = useMemo(() => {
+    return errorMessage && (
+      <Alert variant={'danger'} className='mb-2'>
+        {errorMessage}
+      </Alert>
+    );
+  }, [errorMessage]);
 
   return (
     <Modal show={show} onHide={handleClose}>
       <Form onSubmit={handleSubmit}>
         <Modal.Header closeButton>
-          <Modal.Title>Assign Task</Modal.Title>
+          <Modal.Title>Delete Task</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {errorMessage && (
-            <Alert variant={'danger'} className='mb-2'>
-              {errorMessage}
-            </Alert>
-          )}
-          <p>Are you sure want to delete this task?</p>
+          {memoizedErrorMessage}
+          <p>Are you sure you want to delete this task?</p>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Modal, Button, Form, ListGroup, Alert } from 'react-bootstrap';
 import { Comment, Task } from '../types';
 import { addComment, getComments, getTask } from '../services/api';
@@ -15,25 +15,25 @@ const DetailTaskModal: React.FC<DetailTaskModalProps> = ({ show, handleClose, ta
   const [task, setTask] = useState<Task | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const loadComments = async() => {
+  const loadComments = useCallback(async () => {
     const { data, isError, error } = await getComments(taskId);
     if (isError) {
       setErrorMessage(error);
       return;
     }
     setComments(data.data);
-  };
+  }, [taskId]);
 
-  const loadTask = async() => {
+  const loadTask = useCallback(async () => {
     const { data, isError, error } = await getTask(taskId);
     if (isError) {
       setErrorMessage(error);
       return;
     }
     setTask(data);
-  };
+  }, [taskId]);
 
-  const handleSubmitComment = async () => {
+  const handleSubmitComment = useCallback(async () => {
     if (commentContent !== '') {
       const { isError, error } = await addComment({ taskId, comment: commentContent });
       if (isError) {
@@ -41,21 +41,37 @@ const DetailTaskModal: React.FC<DetailTaskModalProps> = ({ show, handleClose, ta
         return;
       }
 
-      setErrorMessage('')
-      loadComments();
+      setErrorMessage(null);
+      await loadComments();
       setCommentContent('');
     }
-  };
+  }, [commentContent, taskId, loadComments]);
 
   useEffect(() => {
     if (show && taskId !== 0) {
       loadComments();
       loadTask();
     }
-  },[taskId, show]);
+  }, [taskId, show, loadComments, loadTask]);
 
-  console.log({ task });
-  
+  const memoizedErrorMessage = useMemo(() => {
+    return errorMessage && (
+      <Alert variant={'danger'} className='mb-2'>
+        {errorMessage}
+      </Alert>
+    );
+  }, [errorMessage]);
+
+  const memoizedComments = useMemo(() => {
+    return comments.map((comment) => (
+      <ListGroup.Item key={comment.id}>
+        <strong>{comment.user.name}:</strong> {comment.comment}
+        <div className="text-muted" style={{ fontSize: '0.8em' }}>
+          {new Date(comment.createdAt).toLocaleString()}
+        </div>
+      </ListGroup.Item>
+    ));
+  }, [comments]);
 
   return (
     <Modal show={show} onHide={handleClose}>
@@ -63,11 +79,7 @@ const DetailTaskModal: React.FC<DetailTaskModalProps> = ({ show, handleClose, ta
         <Modal.Title>Task Details</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {errorMessage && (
-          <Alert variant={'danger'} className='mb-2'>
-            {errorMessage}
-          </Alert>
-        )}
+        {memoizedErrorMessage}
         {task && (
           <>
             <h4>{task.title}</h4>
@@ -78,14 +90,7 @@ const DetailTaskModal: React.FC<DetailTaskModalProps> = ({ show, handleClose, ta
         )}
         <h5>Comments</h5>
         <ListGroup>
-          {comments.map((comment) => (
-            <ListGroup.Item key={comment.id}>
-              <strong>{comment.user.name}:</strong> {comment.comment}
-              <div className="text-muted" style={{ fontSize: '0.8em' }}>
-                {new Date(comment.createdAt).toLocaleString()}
-              </div>
-            </ListGroup.Item>
-          ))}
+          {memoizedComments}
         </ListGroup>
         <Form.Group className="mt-3">
           <Form.Label>Add Comment</Form.Label>

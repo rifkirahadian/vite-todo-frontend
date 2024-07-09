@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Task } from '../types/Task';
 import { Container, Row, Col, Card, Button, Dropdown } from 'react-bootstrap';
 import { getTasks } from '../services/api';
@@ -13,7 +12,7 @@ const TodoList: React.FC = () => {
   const [assignModal, setAssignModal] = useState({
     show: false,
     id: 0,
-  })
+  });
   const [addModal, setAddModal] = useState({
     show: false,
     type: 'Add',
@@ -22,36 +21,36 @@ const TodoList: React.FC = () => {
   const [deleteModal, setDeleteModal] = useState({
     show: false,
     id: 0,
-  })
+  });
   const [detailModal, setDetailModal] = useState({
     show: false,
     id: 0,
-  })
+  });
 
-  const loadTasks = async () => {
-    const task: any = await getTasks()
-    
-    setTasks(task.data.data);
-  };
+  const loadTasks = useCallback(async () => {
+    const { data } = await getTasks();
+    setTasks(data.data);
+  }, []);
 
   useEffect(() => {
     loadTasks();
-  }, []);
+  }, [loadTasks]);
 
-  const renderTask = (task: Task) => {
+  const renderTask = useCallback((task: Task) => {
     return (
       <Card key={task.id} className="mb-2">
         <Card.Title>{task.title}</Card.Title>
         <Card.Body>
-          
           {task.description && <Card.Text>{task.description}</Card.Text>}
-          {task.userAssignee !== null && ( <Card.Text>Assigned to: {task.userAssignee?.name}</Card.Text> )}
-          
+          {task.userAssignee !== null && (
+            <Card.Text>Assigned to: {task.userAssignee?.name}</Card.Text>
+          )}
+
           <Dropdown className="ms-2">
             <Dropdown.Toggle variant="success" id="dropdown-basic">
               Action
             </Dropdown.Toggle>
-  
+
             <Dropdown.Menu>
               <Dropdown.Item onClick={() => setDetailModal({
                 show: true,
@@ -74,8 +73,12 @@ const TodoList: React.FC = () => {
           </Dropdown>
         </Card.Body>
       </Card>
-    )
-  };
+    );
+  }, []);
+
+  const todoTasks = useMemo(() => tasks.filter(task => task.status === 'todo').map(renderTask), [tasks, renderTask]);
+  const inProgressTasks = useMemo(() => tasks.filter(task => task.status === 'inprogress').map(renderTask), [tasks, renderTask]);
+  const doneTasks = useMemo(() => tasks.filter(task => task.status === 'done').map(renderTask), [tasks, renderTask]);
 
   return (
     <Container>
@@ -94,15 +97,15 @@ const TodoList: React.FC = () => {
       <Row>
         <Col md="4">
           <h3>To Do</h3>
-          {tasks.filter(task => task.status === 'todo').map(renderTask)}
+          {todoTasks}
         </Col>
         <Col md="4">
           <h3>In Progress</h3>
-          {tasks.filter(task => task.status === 'inprogress').map(renderTask)}
+          {inProgressTasks}
         </Col>
         <Col md="4">
           <h3>Done</h3>
-          {tasks.filter(task => task.status === 'done').map(renderTask)}
+          {doneTasks}
         </Col>
       </Row>
       <AddModal
@@ -114,8 +117,9 @@ const TodoList: React.FC = () => {
           type: 'Add',
           id: 0,
         })}
-        handleAddTask={loadTasks} />
-      
+        handleAddTask={loadTasks}
+      />
+
       <AssignModal
         show={assignModal.show}
         id={assignModal.id}
@@ -123,8 +127,9 @@ const TodoList: React.FC = () => {
           show: false,
           id: 0,
         })}
-        handleAssignTask={loadTasks} />
-      
+        handleAssignTask={loadTasks}
+      />
+
       <DeleteModal
         show={deleteModal.show}
         id={deleteModal.id}
@@ -132,15 +137,17 @@ const TodoList: React.FC = () => {
           show: false,
           id: 0,
         })}
-        handleDeleteTask={loadTasks} />
-      
+        handleDeleteTask={loadTasks}
+      />
+
       <DetailTaskModal
         show={detailModal.show}
         taskId={detailModal.id}
         handleClose={() => setDetailModal({
           show: false,
           id: 0,
-        })} />
+        })}
+      />
     </Container>
   );
 };
