@@ -6,6 +6,7 @@ import { getTasks } from '../services/api';
 import AddModal from '../components/AddModal';
 import AssignModal from '../components/AssignModal';
 import DeleteModal from '../components/DeleteModal';
+import DetailTaskModal from '../components/DetailTaskModal';
 
 const TodoList: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -22,6 +23,10 @@ const TodoList: React.FC = () => {
     show: false,
     id: 0,
   })
+  const [detailModal, setDetailModal] = useState({
+    show: false,
+    id: 0,
+  })
 
   const loadTasks = async () => {
     const task: any = await getTasks()
@@ -32,7 +37,6 @@ const TodoList: React.FC = () => {
   useEffect(() => {
     loadTasks();
   }, []);
-  
 
   const renderTask = (task: Task) => {
     return (
@@ -49,7 +53,11 @@ const TodoList: React.FC = () => {
             </Dropdown.Toggle>
   
             <Dropdown.Menu>
-            <Dropdown.Item onClick={() => setAddModal({
+              <Dropdown.Item onClick={() => setDetailModal({
+                show: true,
+                id: task.id!,
+              })}>View Detail</Dropdown.Item>
+              <Dropdown.Item onClick={() => setAddModal({
                 show: true,
                 type: 'Edit',
                 id: task.id!,
@@ -126,8 +134,14 @@ const TodoList: React.FC = () => {
         })}
         handleDeleteTask={loadTasks} />
       
-      
-  </Container>
+      <DetailTaskModal
+        show={detailModal.show}
+        taskId={detailModal.id}
+        handleClose={() => setDetailModal({
+          show: false,
+          id: 0,
+        })} />
+    </Container>
   );
 };
 

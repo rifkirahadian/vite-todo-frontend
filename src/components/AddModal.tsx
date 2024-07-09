@@ -51,8 +51,6 @@ const AddModal: React.FC<AddModalProps> = ({ show, handleClose, handleAddTask, i
     handleClose();
   };
 
-  
-
   useEffect(() => {
     const loadTask = async() => {
       const { data } = await getTask(id);
