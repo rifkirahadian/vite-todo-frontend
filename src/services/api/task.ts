@@ -54,4 +54,21 @@ const assignTask = async (payload: { email: string, taskId: number }) => {
   return { data, isError, error };
 }
 
-export { getTasks, addTask, getTask, updateTask, assignTask }
+const deleteTask = async (id: number) => {
+  const { data, isError, error } = await axiosRequest({
+    url: `/task/${id}`,
+    method: 'DELETE',
+    isAuth: true,
+  });
+
+  return { data, isError, error };
+}
+
+export {
+  getTasks,
+  addTask,
+  getTask,
+  updateTask,
+  assignTask,
+  deleteTask
+}

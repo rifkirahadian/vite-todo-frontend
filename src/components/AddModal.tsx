@@ -22,7 +22,6 @@ const AddModal: React.FC<AddModalProps> = ({ show, handleClose, handleAddTask, i
     e.preventDefault();
     setErrorMessage(null);
     const newTodo: Task = {
-      id: Date.now(),
       title,
       description,
       dueDate: new Date(dueDate).toISOString().split('T')[0],
@@ -44,7 +43,6 @@ const AddModal: React.FC<AddModalProps> = ({ show, handleClose, handleAddTask, i
         return;
       }
     }
-    
 
     handleAddTask();
     setTitle('');

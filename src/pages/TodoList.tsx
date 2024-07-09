@@ -5,6 +5,7 @@ import { Container, Row, Col, Card, Button, Dropdown } from 'react-bootstrap';
 import { getTasks } from '../services/api';
 import AddModal from '../components/AddModal';
 import AssignModal from '../components/AssignModal';
+import DeleteModal from '../components/DeleteModal';
 
 const TodoList: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -17,6 +18,10 @@ const TodoList: React.FC = () => {
     type: 'Add',
     id: 0,
   });
+  const [deleteModal, setDeleteModal] = useState({
+    show: false,
+    id: 0,
+  })
 
   // const updateTaskStatus = (id: number, status: 'todo' | 'inprogress' | 'done') => {
   //   setTasks(tasks.map(todo => todo.id === id ? { ...todo, status } : todo));
@@ -54,13 +59,16 @@ const TodoList: React.FC = () => {
             <Dropdown.Item onClick={() => setAddModal({
               show: true,
               type: 'Edit',
-              id: task.id,
+              id: task.id!,
             })} >Edit</Dropdown.Item>
             <Dropdown.Item onClick={() => setAssignModal({
               show: true,
-              id: task.id,
+              id: task.id!,
             })}>Assign</Dropdown.Item>
-            <Dropdown.Item >Delete</Dropdown.Item>
+            <Dropdown.Item onClick={() => setDeleteModal({
+              show: true,
+              id: task.id!,
+            })}>Delete</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
         {/* {task.status === 'todo' && (
@@ -125,6 +133,17 @@ const TodoList: React.FC = () => {
           id: 0,
         })}
         handleAssignTask={loadTasks} />
+      
+      <DeleteModal
+        show={deleteModal.show}
+        id={deleteModal.id}
+        handleClose={() => setDeleteModal({
+          show: false,
+          id: 0,
+        })}
+        handleDeleteTask={loadTasks} />
+      
+      
   </Container>
   );
 };
