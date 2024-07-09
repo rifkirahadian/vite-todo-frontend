@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Button, Form, ListGroup } from 'react-bootstrap';
+import { Modal, Button, Form, ListGroup, Alert } from 'react-bootstrap';
 import { Comment, Task } from '../types';
 import { addComment, getComments, getTask } from '../services/api';
 
@@ -13,27 +13,38 @@ const DetailTaskModal: React.FC<DetailTaskModalProps> = ({ show, handleClose, ta
   const [commentContent, setCommentContent] = useState('');
   const [comments, setComments] = useState<Comment[]>([]);
   const [task, setTask] = useState<Task | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const loadComments = async() => {
-    const { data } = await getComments(taskId);
+    const { data, isError, error } = await getComments(taskId);
+    if (isError) {
+      setErrorMessage(error);
+      return;
+    }
     setComments(data.data);
   };
 
   const loadTask = async() => {
-    const { data } = await getTask(taskId);
+    const { data, isError, error } = await getTask(taskId);
+    if (isError) {
+      setErrorMessage(error);
+      return;
+    }
     setTask(data);
   };
 
   const handleSubmitComment = async () => {
     if (commentContent !== '') {
-      const { isError } = await addComment({ taskId, comment: commentContent });
-      if (!isError) {
-        loadComments();
-        setCommentContent('');
+      const { isError, error } = await addComment({ taskId, comment: commentContent });
+      if (isError) {
+        setErrorMessage(error);
+        return;
       }
+
+      setErrorMessage('')
+      loadComments();
+      setCommentContent('');
     }
-    
-    
   };
 
   useEffect(() => {
@@ -52,6 +63,11 @@ const DetailTaskModal: React.FC<DetailTaskModalProps> = ({ show, handleClose, ta
         <Modal.Title>Task Details</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        {errorMessage && (
+          <Alert variant={'danger'} className='mb-2'>
+            {errorMessage}
+          </Alert>
+        )}
         {task && (
           <>
             <h4>{task.title}</h4>
